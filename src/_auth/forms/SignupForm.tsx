@@ -14,11 +14,24 @@ import { Input } from "@/components/ui/input";
 import { SignupValidation } from "@/lib/validation";
 import { z } from "zod";
 import Loader from "@/components/shared/Loader";
-import { Link } from "react-router-dom";
-import { createUserAccount } from "@/lib/appwrite/api";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  useCreateUserAccount,
+  useSignInAccount,
+} from "@/lib/react-query/queriesAndMutations";
+import { useUserContext } from "@/context/AuthContext";
 
 export default function SignupForm() {
-  const isLoading = false;
+  const { toast } = useToast();
+  const { checkAuthUser } = useUserContext();
+
+  const navigate = useNavigate();
+
+  const { mutateAsync: createUserAccount } = useCreateUserAccount();
+
+  const { mutateAsync: signInAccount, isPending: isSigningIn } =
+    useSignInAccount();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof SignupValidation>>({
@@ -35,7 +48,34 @@ export default function SignupForm() {
   async function onSubmit(values: z.infer<typeof SignupValidation>) {
     // create the user
     const newUser = await createUserAccount(values);
-    console.log(newUser);
+
+    if (!newUser) {
+      return toast({
+        title: "Sing up failed. Please try again.",
+      });
+    }
+
+    const session = await signInAccount({
+      email: values.email,
+      password: values.password,
+    });
+
+    if (!session) {
+      return toast({
+        title: "Sign in failed. Please try again.",
+      });
+    }
+
+    const isLoggedIn = await checkAuthUser();
+
+    if (isLoggedIn) {
+      form.reset();
+      navigate("/");
+    } else {
+      toast({
+        title: "Sign in failed. Please try again.",
+      });
+    }
   }
 
   return (
@@ -107,7 +147,7 @@ export default function SignupForm() {
             )}
           />
           <Button className="shad-button_primary" type="submit">
-            {isLoading ? (
+            {isSigningIn ? (
               <div className="flex-center gap-2">
                 <Loader />
                 Loading...
@@ -120,7 +160,7 @@ export default function SignupForm() {
             Already have an account?
             <Link
               className="text-primary-500 text-small-semibold ml-1"
-              to="/login"
+              to="/sign-in"
             >
               Log In
             </Link>
