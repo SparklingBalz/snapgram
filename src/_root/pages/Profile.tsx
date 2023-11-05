@@ -6,7 +6,7 @@ import {
   useGetUserById,
   useGetUserPosts,
 } from "@/lib/react-query/queriesAndMutations";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 export default function Profile() {
   const { id } = useParams();
@@ -22,7 +22,9 @@ export default function Profile() {
         <div className="flex justify-between w-full">
           <ProfileInfo user={user} />
           {currUser && currUser.id === id && (
-            <Button className="shad-button_primary">Edit Profile</Button>
+            <Link to={`/update-profile/${id}`}>
+              <Button className="shad-button_primary">Edit Profile</Button>
+            </Link>
           )}
         </div>
       </div>
