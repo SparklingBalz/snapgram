@@ -7,8 +7,6 @@ export default function UpdateProfile() {
   const { id } = useParams();
   const { data: profile, isPending } = useGetUserById(id || "");
 
-  console.log(profile);
-
   if (isPending) {
     return <Loader />;
   }
