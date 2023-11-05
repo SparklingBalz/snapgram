@@ -18,7 +18,7 @@ export default function Home() {
     data: creators,
     isPending: isUsersLoading,
     isError: isErrorCreators,
-  } = useGetUsers();
+  } = useGetUsers(10);
 
   return (
     <div className="flex flex-1">
