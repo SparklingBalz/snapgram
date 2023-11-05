@@ -1,6 +1,10 @@
 import Loader from "@/components/shared/Loader";
 import PostCard from "@/components/shared/PostCard";
-import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
+import RightSidebar from "@/components/shared/RightSidebar";
+import {
+  useGetRecentPosts,
+  useGetUsers,
+} from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
 
 export default function Home() {
@@ -9,6 +13,12 @@ export default function Home() {
     isPending: isPostsLoading,
     isError: isErrorPosts,
   } = useGetRecentPosts();
+
+  const {
+    data: creators,
+    isPending: isUsersLoading,
+    isError: isErrorCreators,
+  } = useGetUsers();
 
   return (
     <div className="flex flex-1">
@@ -26,6 +36,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      <RightSidebar creators={creators} isLoading={isUsersLoading} />
     </div>
   );
 }
